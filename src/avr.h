@@ -5,20 +5,20 @@
 
 #include <stdint.h>
 
-#define SRAM_SIZE_BYTES (0x10000)
-#define REGS_SIZE_BYTES (0x100)
+#define SRAM_SIZE_BYTES (0x10000u)
+#define REGS_SIZE_BYTES (0x100u)
 
-#define AVR_REG_SREG    (0x5f)
-#define AVR_REG_SP      (0x5d)
-#define AVR_REG_SPL     (0x5d)
-#define AVR_REG_SPH     (0x5e)
-#define AVR_REG_X       (26)
-#define AVR_REG_Y       (28)
-#define AVR_REG_Z       (30)
-#define AVR_REG_RAMPZ   (0x5c)
+#define AVR_REG_SREG    (0x5fu)
+#define AVR_REG_SP      (0x5du)
+#define AVR_REG_SPL     (0x5du)
+#define AVR_REG_SPH     (0x5eu)
+#define AVR_REG_X       (26u)
+#define AVR_REG_Y       (28u)
+#define AVR_REG_Z       (30u)
+#define AVR_REG_RAMPZ   (0x5cu)
 
-#define FLASH_SIZE_BYTES (0x20000)
-#define FLASH_SIZE_WORDS (0x10000)
+#define FLASH_SIZE_BYTES (0x20000u)
+#define FLASH_SIZE_WORDS (0x10000u)
 
 typedef uint8_t (*avr_regs_func)(uint16_t, uint8_t);
 

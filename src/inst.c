@@ -165,7 +165,7 @@ static void do_BST(uint16_t inst)
     // -------ddddd-bbb
     uint16_t d = ((inst >> 4) & 0x1f);
     uint16_t b = (inst & 0x7);
-    uint8_t Rd, x;
+    uint8_t Rd;
     Rd = avr_read_byte(d);
     avr.sreg.T = ((Rd & (1 << b)) != 0);
     avr.cycle++;
@@ -186,7 +186,7 @@ static void do_CBI(uint16_t inst)
     // --------AAAAAbbb
     uint16_t A = ((inst >> 3) & 0x1f) + 0x20;
     uint16_t b = (inst & 0x7);
-    uint8_t RA = avr_read_byte(A), x;
+    uint8_t RA = avr_read_byte(A);
     RA &= ~(1 << b);
     avr_write_byte(A, RA);
     avr.cycle += 2;
@@ -489,7 +489,7 @@ static void do_LD_Z4(uint16_t inst)
     uint16_t q = (inst & 0x7) | ((inst >> 7) & 0x18) | ((inst >> 8) & 0x20);
     uint16_t d = ((inst >> 4) & 0x1f);
     uint16_t Z = avr_read_word(AVR_REG_Z);
-    avr_write_byte(d, avr_read_byte(Z));
+    avr_write_byte(d, avr_read_byte(Z + q));
     avr.cycle += 2;
 }
 
@@ -776,7 +776,7 @@ static void do_SBI(uint16_t inst)
     // --------AAAAAbbb
     uint16_t A = ((inst >> 3) & 0x1f) + 0x20;
     uint16_t b = (inst & 0x7);
-    uint8_t RA = avr_read_byte(A), x;
+    uint8_t RA = avr_read_byte(A);
     RA |= (1 << b);
     avr_write_byte(A, RA);
     avr.cycle += 2;
