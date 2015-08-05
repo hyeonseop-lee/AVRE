@@ -9,25 +9,41 @@
 struct AVR avr;
 
 void avr_init() {
-    memset(&avr.sram, 0, sizeof(struct SRAM));
-    memset(&avr.flash, 0, sizeof(struct FLASH));
+    memset(avr.sram.bytes, 0, SRAM_SIZE_BYTES);
+    memset(avr.flash.bytes, 0, FLASH_SIZE_BYTES);
     avr_reset();
 }
 
 void avr_reset() {
     avr.pc = 0;
     avr.cycle = 0;
+    memset(avr.sram.regs, 0, REGS_SIZE_BYTES);
     avr.sram.bytes[AVR_REG_SPH] = (SRAM_SIZE_BYTES - 1) >> 8;
     avr.sram.bytes[AVR_REG_SPL] = (SRAM_SIZE_BYTES - 1) & 0xff;
 }
 
 void avr_run() {
     uint16_t inst;
+    int i;
+
+    avr.sreg.bits = avr_read_byte(AVR_REG_SREG);
+
+    if(avr.irq && avr.sreg.I) {
+        for(i = 0; i < IRQ_COUNT && (avr.irq & (1 << i)) == 0; i++);
+        avr.irq ^= (1 << i);
+        avr_push_word(avr.pc);
+        avr.pc = i;
+        avr.sreg.I = 0;
+        avr_write_byte(AVR_REG_SREG, avr.sreg.bits);
+    }
 
     inst = avr.flash.words[avr.pc++];
-    avr.sreg.bits = avr_read_byte(AVR_REG_SREG);
     inst_handler[inst](inst);
     avr_write_byte(AVR_REG_SREG, avr.sreg.bits);
+}
+
+void avr_irq(int irq) {
+    avr.irq |= (1 << irq);
 }
 
 uint8_t avr_read_byte(uint16_t addr) {

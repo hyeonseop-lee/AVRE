@@ -48,7 +48,13 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
+    avr_init();
     loader(argv[optind]);
+    avr_reset();
+
+    while(1) {
+        avr_run();
+    }
 
     return 0;
 }

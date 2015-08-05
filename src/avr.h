@@ -20,6 +20,8 @@
 #define FLASH_SIZE_BYTES (0x20000u)
 #define FLASH_SIZE_WORDS (0x10000u)
 
+#define IRQ_COUNT (27)
+
 typedef uint8_t (*avr_regs_func)(uint16_t, uint8_t);
 
 struct SREG {
@@ -54,6 +56,7 @@ struct FLASH {
 
 struct AVR {
     uint16_t pc;
+    uint32_t irq;
     uint64_t cycle;
     struct SRAM sram;
     struct FLASH flash;
@@ -68,6 +71,7 @@ extern struct AVR avr;
 void avr_init();
 void avr_reset();
 void avr_run();
+void avr_irq(int irq);
 
 uint8_t avr_read_byte(uint16_t addr);
 void avr_write_byte(uint16_t addr, uint8_t data);
