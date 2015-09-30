@@ -1,11 +1,11 @@
 // usart.hh
 
+#ifndef AVRE_USART_HH
+#define AVRE_USART_HH
+
 #include <sstream>
 
 #include "avr.hh"
-
-#ifndef AVRE_USART_HH
-#define AVRE_USART_HH
 
 #define USART_UCSRA_RXC   (0x80u)
 #define USART_UCSRA_TXC   (0x40u)
