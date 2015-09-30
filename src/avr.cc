@@ -15,7 +15,8 @@ AVR::AVR(const char *fn, const char *tp)
 
     if(strcasecmp(tp, "elf") == 0)
     {
-        load_elf(fn);
+        fprintf(stderr, "unsupported file type -- '%s'\n\n", tp);
+        exit(1);
     }
     else if(strcasecmp(tp, "ihex") == 0)
     {
