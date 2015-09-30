@@ -95,6 +95,7 @@ public:
 
     void reset();
     void raise_irq(int num);
+    void register_handler(uint16_t reg, access_handler read, access_handler write);
 
     uint8_t read_byte(uint16_t addr);
     void write_byte(uint16_t addr, uint8_t data);

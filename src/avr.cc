@@ -10,6 +10,9 @@
 AVR::AVR(const char *fn, const char *tp)
     : Module()
 {
+    memset(sram.bytes, 0, SRAM_SIZE_BYTES);
+    memset(flash.bytes, 0, FLASH_SIZE_BYTES);
+
     if(strcasecmp(tp, "elf") == 0)
     {
         load_elf(fn);
@@ -35,8 +38,6 @@ AVR::~AVR()
 
 void AVR::initialize()
 {
-    memset(sram.bytes, 0, SRAM_SIZE_BYTES);
-    memset(flash.bytes, 0, FLASH_SIZE_BYTES);
     reset();
 }
 
@@ -44,6 +45,7 @@ void AVR::reset()
 {
     pc = 0;
     cycle = 0;
+    irq = 0;
     memset(sram.regs, 0, REGS_SIZE_BYTES);
     sram.bytes[AVR_REG_SPH] = (SRAM_SIZE_BYTES - 1) >> 8;
     sram.bytes[AVR_REG_SPL] = (SRAM_SIZE_BYTES - 1) & 0xff;
@@ -52,6 +54,12 @@ void AVR::reset()
 void AVR::raise_irq(int num)
 {
     irq |= (1 << num);
+}
+
+void AVR::register_handler(uint16_t reg, AVR::access_handler read, AVR::access_handler write)
+{
+    read_handler[reg] = read;
+    write_handler[reg] = write;
 }
 
 void AVR::process()
@@ -89,14 +97,14 @@ void AVR::write_byte(uint16_t addr, uint8_t data)
 {
     if(addr < REGS_SIZE_BYTES && write_handler[addr])
     {
-        sram.regs[addr] = write_handler[addr](this, addr, sram.regs[addr]);
+        data = write_handler[addr](this, addr, data);
     }
     sram.bytes[addr] = data;
 }
 
 uint16_t AVR::read_word(uint16_t addr)
 {
-    return (uint16_t)read_byte(addr) | ((uint16_t)read_byte(addr + 1)) << 8;
+    return (uint16_t)read_byte(addr) | (((uint16_t)read_byte(addr + 1)) << 8);
 }
 
 void AVR::write_word(uint16_t addr, uint16_t data)
@@ -126,7 +134,7 @@ uint16_t AVR::pop_word()
     uint16_t sp;
     sp = read_word(AVR_REG_SP);
     write_word(AVR_REG_SP, sp + 2);
-    return read_word(sp - 1);
+    return read_word(sp + 1);
 }
 
 void AVR::push_word(uint16_t data)

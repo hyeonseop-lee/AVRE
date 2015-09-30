@@ -48,7 +48,7 @@ static int do_ADIW(AVR *avr, uint16_t inst)
 {
     // --------KKddKKKK
     uint16_t K = (inst & 0xf) | ((inst >> 2) & 0x30);
-    uint16_t d = ((inst >> 4) & 0x3);
+    uint16_t d = 0x18u + (((inst >> 4) & 0x3) << 1);
     uint16_t Rd = avr->read_word(d), x;
     x = Rd + K;
     avr->sreg.V = ((~Rd & x) & 0x8000) != 0;
@@ -573,8 +573,8 @@ static int do_MOV(AVR *avr, uint16_t inst)
 static int do_MOVW(AVR *avr, uint16_t inst)
 {
     // --------ddddrrrr
-    uint16_t d = ((inst >> 4) & 0xf);
-    uint16_t r = (inst & 0xf);
+    uint16_t d = ((inst >> 4) & 0xf) << 1;
+    uint16_t r = (inst & 0xf) << 1;
     avr->write_word(d, avr->read_word(r));
     return 1;
 }
@@ -826,7 +826,7 @@ static int do_SBIW(AVR *avr, uint16_t inst)
 {
     // --------KKddKKKK
     uint16_t K = (inst & 0xf) | ((inst >> 2) & 0x30);
-    uint16_t d = ((inst >> 4) & 0x3);
+    uint16_t d = 0x18u + (((inst >> 4) & 0x3) << 1);
     uint16_t Wd = avr->read_word(d), x;
     x = Wd - K;
     avr->sreg.V = ((Wd & ~x) & 0x8000) != 0;
@@ -895,7 +895,7 @@ static int do_ST_X1(AVR *avr, uint16_t inst)
     // -------rrrrr----
     uint16_t r = ((inst >> 4) & 0x1f);
     uint16_t X = avr->read_word(AVR_REG_X);
-    avr->write_byte(r, avr->read_byte(X));
+    avr->write_byte(X, avr->read_byte(r));
     return 2;
 }
 
@@ -904,7 +904,7 @@ static int do_ST_X2(AVR *avr, uint16_t inst)
     // -------rrrrr----
     uint16_t r = ((inst >> 4) & 0x1f);
     uint16_t X = avr->read_word(AVR_REG_X);
-    avr->write_byte(r, avr->read_byte(X++));
+    avr->write_byte(X++, avr->read_byte(r));
     avr->write_word(AVR_REG_X, X);
     return 2;
 }
@@ -914,7 +914,7 @@ static int do_ST_X3(AVR *avr, uint16_t inst)
     // -------rrrrr----
     uint16_t r = ((inst >> 4) & 0x1f);
     uint16_t X = avr->read_word(AVR_REG_X);
-    avr->write_byte(r, avr->read_byte(--X));
+    avr->write_byte(--X, avr->read_byte(r));
     avr->write_word(AVR_REG_X, X);
     return 2;
 }
@@ -924,7 +924,7 @@ static int do_ST_Y2(AVR *avr, uint16_t inst)
     // -------rrrrr----
     uint16_t r = ((inst >> 4) & 0x1f);
     uint16_t Y = avr->read_word(AVR_REG_Y);
-    avr->write_byte(r, avr->read_byte(Y++));
+    avr->write_byte(Y++, avr->read_byte(r));
     avr->write_word(AVR_REG_Y, Y);
     return 2;
 }
@@ -934,7 +934,7 @@ static int do_ST_Y3(AVR *avr, uint16_t inst)
     // -------rrrrr----
     uint16_t r = ((inst >> 4) & 0x1f);
     uint16_t Y = avr->read_word(AVR_REG_Y);
-    avr->write_byte(r, avr->read_byte(--Y));
+    avr->write_byte(--Y, avr->read_byte(r));
     avr->write_word(AVR_REG_Y, Y);
     return 2;
 }
@@ -945,7 +945,7 @@ static int do_ST_Y4(AVR *avr, uint16_t inst)
     uint16_t q = (inst & 0x7) | ((inst >> 7) & 0x18) | ((inst >> 8) & 0x20);
     uint16_t r = ((inst >> 4) & 0x1f);
     uint16_t Y = avr->read_word(AVR_REG_Y);
-    avr->write_byte(r, avr->read_byte(Y + q));
+    avr->write_byte(Y + q, avr->read_byte(r));
     return 2;
 }
 
@@ -954,7 +954,7 @@ static int do_ST_Z2(AVR *avr, uint16_t inst)
     // -------rrrrr----
     uint16_t r = ((inst >> 4) & 0x1f);
     uint16_t Z = avr->read_word(AVR_REG_Z);
-    avr->write_byte(r, avr->read_byte(Z++));
+    avr->write_byte(Z++, avr->read_byte(r));
     avr->write_word(AVR_REG_Z, Z);
     return 2;
 }
@@ -964,7 +964,7 @@ static int do_ST_Z3(AVR *avr, uint16_t inst)
     // -------rrrrr----
     uint16_t r = ((inst >> 4) & 0x1f);
     uint16_t Z = avr->read_word(AVR_REG_Z);
-    avr->write_byte(r, avr->read_byte(--Z));
+    avr->write_byte(--Z, avr->read_byte(r));
     avr->write_word(AVR_REG_Z, Z);
     return 2;
 }
@@ -975,7 +975,7 @@ static int do_ST_Z4(AVR *avr, uint16_t inst)
     uint16_t q = (inst & 0x7) | ((inst >> 7) & 0x18) | ((inst >> 8) & 0x20);
     uint16_t r = ((inst >> 4) & 0x1f);
     uint16_t Z = avr->read_word(AVR_REG_Z);
-    avr->write_byte(r, avr->read_byte(Z + q));
+    avr->write_byte(Z + q, avr->read_byte(r));
     return 2;
 }
 
